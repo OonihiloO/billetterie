@@ -4,6 +4,7 @@ package org.montrealjug.billetterie.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import org.hibernate.proxy.HibernateProxy;
 
 @Entity
 public class Activity implements Comparable<Activity> {
@@ -110,34 +111,48 @@ public class Activity implements Comparable<Activity> {
     public enum RegistrationStatus {
         OPEN,
         WAITING_LIST,
-        CLOSED,
+        CLOSED;
+
+        public static RegistrationStatus from(int nbParticipants, int maxParticipants, int maxWaitingQueue) {
+            final RegistrationStatus registrationStatus;
+            if (nbParticipants < maxParticipants) {
+                registrationStatus = RegistrationStatus.OPEN;
+            } else if (nbParticipants < (maxParticipants + maxWaitingQueue)) {
+                registrationStatus = RegistrationStatus.WAITING_LIST;
+            } else {
+                registrationStatus = RegistrationStatus.CLOSED;
+            }
+            return registrationStatus;
+        }
     }
 
     @Transient
     public RegistrationStatus getRegistrationStatus() {
         // ensure that we will lazy-load ActivityParticipant if needed
         var nbParticipants = getParticipants().size();
-        final RegistrationStatus registrationStatus;
-        if (nbParticipants <= this.maxParticipants) {
-            registrationStatus = RegistrationStatus.OPEN;
-        } else if (nbParticipants <= this.maxParticipants + this.maxWaitingQueue) {
-            registrationStatus = RegistrationStatus.WAITING_LIST;
-        } else {
-            registrationStatus = RegistrationStatus.CLOSED;
-        }
-        return registrationStatus;
+        return RegistrationStatus.from(nbParticipants, maxParticipants, maxWaitingQueue);
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy
+            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+            : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
         Activity activity = (Activity) o;
-        return id == activity.id;
+        return Objects.equals(getId(), activity.getId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    public final int hashCode() {
+        return this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+            : getClass().hashCode();
     }
 
     @Transient

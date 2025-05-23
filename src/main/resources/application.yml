@@ -23,8 +23,8 @@ spring:
       mail.smtp.starttls.enabled: true
       mail.smtp.starttls.required: true
       #mail.smtp.debug: true # uncomment to have SMTP exchanges logged to the console
-    # switch to on when credentials are confirmed
-    # if `on`, the app will fail to launch if the connection to the SMTP server fails
+      # switch to on when credentials are confirmed
+      # if `on`, the app will fail to launch if the connection to the SMTP server fails
     test-connection: off
   messages:
     fallback-to-system-locale: false

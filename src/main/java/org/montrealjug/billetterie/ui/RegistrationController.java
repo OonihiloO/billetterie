@@ -15,7 +15,6 @@ import org.montrealjug.billetterie.email.EmailModel.Email;
 import org.montrealjug.billetterie.email.EmailService;
 import org.montrealjug.billetterie.entity.*;
 import org.montrealjug.billetterie.exception.EntityNotFoundException;
-import org.montrealjug.billetterie.repository.ActivityParticipantRepository;
 import org.montrealjug.billetterie.repository.ActivityRepository;
 import org.montrealjug.billetterie.repository.BookerRepository;
 import org.montrealjug.billetterie.repository.EventRepository;
@@ -42,7 +41,6 @@ public class RegistrationController {
     private final EmailService emailService;
     private final EventRepository eventRepository;
     private final ActivityRepository activityRepository;
-    private final ActivityParticipantRepository activityParticipantRepository;
     private final ParticipantRepository participantRepository;
 
     public RegistrationController(
@@ -52,7 +50,6 @@ public class RegistrationController {
         EmailService emailService,
         EventRepository eventRepository,
         ActivityRepository activityRepository,
-        ActivityParticipantRepository activityParticipantRepository,
         ParticipantRepository participantRepository
     ) {
         this.bookerRepository = bookerRepository;
@@ -61,7 +58,6 @@ public class RegistrationController {
         this.emailService = emailService;
         this.eventRepository = eventRepository;
         this.activityRepository = activityRepository;
-        this.activityParticipantRepository = activityParticipantRepository;
         this.participantRepository = participantRepository;
     }
 
@@ -265,16 +261,10 @@ public class RegistrationController {
                 activityRepository.save(activity);
             }
 
-            var participantsForEventAndBooker =
-                activityParticipantRepository.findAllActivityParticipantByEventIdAndBookerEmail(
-                    eventId,
-                    booker.getEmail()
-                );
             emailService.sendEmail(
                 Email.afterParticipantsChanges(
                     booker,
-                    toPresentationActivityParticipants(participantsForEventAndBooker),
-                    event,
+                    toPresentationEvent(event),
                     retrieveBaseUrl(request),
                     qrCodeService.generateQrCode(
                         retrieveBaseUrl(request) + "/admin/bookings/" + booker.getEmailSignature()
@@ -350,17 +340,10 @@ public class RegistrationController {
             //            activity.setParticipants(activityParticipantSet);
             activityRepository.save(activity);
 
-            List<ActivityParticipant> allActivityParticipantByEventIdAndBookerEmail =
-                activityParticipantRepository.findAllActivityParticipantByEventIdAndBookerEmail(
-                    eventId,
-                    booker.getEmail()
-                );
-
             emailService.sendEmail(
                 Email.afterParticipantsChanges(
                     booker,
-                    toPresentationActivityParticipants(allActivityParticipantByEventIdAndBookerEmail),
-                    event,
+                    toPresentationEvent(event),
                     retrieveBaseUrl(request),
                     qrCodeService.generateQrCode(
                         retrieveBaseUrl(request) + "/admin/bookings/" + booker.getEmailSignature()
@@ -385,10 +368,9 @@ public class RegistrationController {
                 ActivityParticipant upgradedActivityParticipant = activity.getNonWaitingParticipants().getLast();
                 Booker upgradedParticipantBooker = lastParticipantAfterRemoval.getBooker();
                 emailService.sendEmail(
-                    Email.participantUpgraded(
+                    Email.afterParticipantsUpgrade(
                         upgradedParticipantBooker,
-                        toPresentationParticipantActivity(upgradedActivityParticipant),
-                        event,
+                        toPresentationEvent(event),
                         retrieveBaseUrl(request),
                         qrCodeService.generateQrCode(
                             retrieveBaseUrl(request) +
@@ -437,16 +419,7 @@ public class RegistrationController {
             var bookerParticipants = booker.getParticipants();
 
             // Create presentation event
-            PresentationEvent presentationEvent = new PresentationEvent(
-                event.getId(),
-                event.getTitle(),
-                markdownToHtml(event.getDescription()),
-                event.getDate(),
-                toPresentationActivitiesLimitedToBooker(event.getActivities(), bookerParticipants),
-                event.isActive(),
-                event.getImagePath(),
-                event.getLocation()
-            );
+            PresentationEvent presentationEvent = toPresentationEvent(event);
 
             // Add attributes to model
             model.addAttribute("event", presentationEvent);
@@ -476,13 +449,6 @@ public class RegistrationController {
             }
             return "index";
         }
-    }
-
-    static String retrieveBaseUrl(HttpServletRequest request) {
-        String requestURL = request.getRequestURL().toString();
-        String requestURI = request.getRequestURI();
-
-        return requestURL.substring(0, requestURL.length() - requestURI.length()) + request.getContextPath();
     }
 
     static boolean isSameParticipant(Participant p, ParticipantSubmission participantSub) {
@@ -521,10 +487,9 @@ public class RegistrationController {
             Booker upgradedParticipantBooker = upgradedParticipant.getBooker();
             var event = activity.getEvent();
             emailService.sendEmail(
-                Email.participantUpgraded(
+                Email.afterParticipantsUpgrade(
                     upgradedParticipantBooker,
-                    toPresentationParticipantActivity(upgradedActivityParticipant),
-                    event,
+                    toPresentationEvent(event),
                     retrieveBaseUrl(request),
                     qrCodeService.generateQrCode(
                         retrieveBaseUrl(request) + "/admin/bookings/" + upgradedParticipantBooker.getEmailSignature()

@@ -38,16 +38,7 @@ public class EventsController {
         Iterable<Event> events = this.eventRepository.findAll();
 
         events.forEach(event -> {
-            PresentationEvent presentationEvent = new PresentationEvent(
-                event.getId(),
-                event.getTitle(),
-                markdownToHtml(event.getDescription()),
-                event.getDate(),
-                toPresentationActivities(event.getActivities()),
-                event.isActive(),
-                event.getImagePath(),
-                event.getLocation()
-            );
+            PresentationEvent presentationEvent = toPresentationEvent(event);
             presentationEvents.add(presentationEvent);
         });
 

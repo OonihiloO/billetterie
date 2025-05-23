@@ -34,7 +34,7 @@ public class SecurityConfiguration {
     // as `actuator` is `read-only` in the config, we have a small risk of csrf:
     // an attacker could forge a link that, if clicked by a user with saved `actuator`
     // credentials in their browser, could leak some info.
-    // as `threaddump` and `heapdump` are also disabled, I think we can live
+    // as `threaddump` and `heapdump` are also disabled, we can live
     // with the threat of leaking our `beans` hierarchy or our `loggers` config
     @Bean
     @Order(0)

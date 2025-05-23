@@ -1,8 +1,8 @@
 @import org.montrealjug.billetterie.email.EmailModel.AfterParticipantsChangesEmail
-@import org.montrealjug.billetterie.ui.PresentationActivityParticipant
+@import org.montrealjug.billetterie.ui.PresentationParticipant
 
 @param AfterParticipantsChangesEmail context
-!{var title = "Participation à " + context.event().getTitle() + " participation";}
+!{var title = "Participation à " + context.event().title() + " participation";}
 !{var h1 = "Mise à jour de votre participation / Participation updated";}
 @template.layouts.email_html_layout(
   title = title,
@@ -23,13 +23,11 @@
     <tr>
       <td>
         <ul>
-          @for(PresentationActivityParticipant activityParticipant: context.participants())
-            !{var participant = activityParticipant.participant();}
-            !{var activity = activityParticipant.presentationActivity();}
-            @if(activityParticipant.isWaiting())
-              <li>${participant.getFirstName()} ${participant.getLastName()} (${participant.getAge()} ans) - SUR LISTE D'ATTENTE</li>
+          @for (PresentationParticipant participant: context.participants())
+            @if(participant.isWaiting())
+              <li>${participant.firstName()} ${participant.lastName()} (${participant.age()} ans) - SUR LISTE D'ATTENTE</li>
             @else
-              <li>${participant.getFirstName()} ${participant.getLastName()} (${participant.getAge()} ans)</li>
+              <li>${participant.firstName()} ${participant.lastName()} (${participant.age()} ans)</li>
             @endif
           @endfor
         </ul>
@@ -68,13 +66,11 @@
     <tr>
       <td>
         <ul>
-          @for(PresentationActivityParticipant activityParticipant: context.participants())
-            !{var participant = activityParticipant.participant();}
-            !{var activity = activityParticipant.presentationActivity();}
-            @if(activityParticipant.isWaiting())
-              <li>${participant.getFirstName()} ${participant.getLastName()} (${participant.getAge()} year old) - ON WAITING LIST</li>
+          @for (PresentationParticipant participant: context.participants())
+            @if(participant.isWaiting())
+              <li>${participant.firstName()} ${participant.lastName()} (${participant.age()} year old) - ON WAITING LIST</li>
             @else
-              <li>${participant.getFirstName()} ${participant.getLastName()} (${participant.getAge()} year old)</li>
+              <li>${participant.firstName()} ${participant.lastName()} (${participant.age()} year old)</li>
             @endif
           @endfor
         </ul>

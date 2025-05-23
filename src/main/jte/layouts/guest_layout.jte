@@ -27,6 +27,7 @@
             }
         }
     </style>--%>
+    <script src="/static/htmx.min.js" type="text/javascript"></script>
     <!-- favicons and co. -->
     <link rel="icon" type="image/png" href="/static/favicons/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/static/favicons/favicon.svg" />
@@ -46,7 +47,7 @@
     <a class="inline-block absolute top-24 right-2 md:top-8 md:p-2 text-xs shadow-2xs font-semibold p-1 rounded-md border-2 border-white hover:bg-white hover:text-d4k-orange md:text-xl"
        href="/admin/events">Admin</a>
 </header>
-<main class="grow-1 flex flex-col justify-start md:p-2 lg:p-4 overflow-hidden">
+<main class="grow-1 flex flex-col justify-start md:p-2 lg:p-4 overflow-hidden" id="main">
     ${content}
 </main>
 <footer class="bg-white p-2 flex justify-between items-center text-gray-500 text-xs md:p-4 md:text-sm">

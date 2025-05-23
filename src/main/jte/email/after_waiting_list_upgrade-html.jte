@@ -1,16 +1,15 @@
-@import org.montrealjug.billetterie.email.EmailModel.ParticipantUpgraded
+@import org.montrealjug.billetterie.email.EmailModel.AfterParticipantsChangesEmail
+@import org.montrealjug.billetterie.ui.PresentationParticipant
 
-@param ParticipantUpgraded context
-!{var title = "Participation à " + context.event().getTitle() + " participation";}
-!{var h1 = "Un participant en liste d'attente est maintenant inscrit ! / A waiting-line participant had now a seat!";}
-!{var participant = context.participant().participant();}
-
+@param AfterParticipantsChangesEmail context
+!{var title = "Participation à " + context.event().title() + " participation";}
+!{var h1 = "Mise à jour de votre participation / Participation updated";}
 @template.layouts.email_html_layout(
-  title = title,
-  h1 = h1,
-  additionalHeadContent = @`
-  `,
-  mainContent = @`
+title = title,
+h1 = h1,
+additionalHeadContent = @`
+`,
+mainContent = @`
   <table class="main-table" lang="fr-CA" xml:lang="fr-CA">
     <tbody>
     <tr>
@@ -19,12 +18,21 @@
       </td>
     </tr>
     <tr>
-      <td>Une place s'est libérée pour un enfant participant à Devoxx4Kids</td>
+      <td>Suite à un désistement, votre inscription au prochain événement Devoxx4Kids a été modifiée.</td>
+    </tr>
+    <tr>
+      <td>Voici le nouvel état de votre inscription:</td>
     </tr>
     <tr>
       <td>
         <ul>
-          <li>${participant.getFirstName()} ${participant.getLastName()} (${participant.getAge()} ans)</li>
+          @for (PresentationParticipant participant: context.participants())
+            @if(participant.isWaiting())
+              <li>${participant.firstName()} ${participant.lastName()} (${participant.age()} ans) - SUR LISTE D'ATTENTE</li>
+            @else
+              <li>${participant.firstName()} ${participant.lastName()} (${participant.age()} ans)</li>
+            @endif
+          @endfor
         </ul>
       </td>
     </tr>
@@ -56,12 +64,21 @@
       </td>
     </tr>
     <tr>
-      <td>A seat freed up for one the children you registered.</td>
+      <td>Following a participant cancellation for the next Devoxx4Kids event, your participation has been modified.</td>
+    </tr>
+    <tr>
+      <td>Here is the new state of your participation:</td>
     </tr>
     <tr>
       <td>
         <ul>
-          <li>${participant.getFirstName()} ${participant.getLastName()} (${participant.getAge()} ans)</li>
+          @for (PresentationParticipant participant: context.participants())
+            @if(participant.isWaiting())
+              <li>${participant.firstName()} ${participant.lastName()} (${participant.age()} year old) - ON WAITING LIST</li>
+            @else
+              <li>${participant.firstName()} ${participant.lastName()} (${participant.age()} year old)</li>
+            @endif
+          @endfor
         </ul>
       </td>
     </tr>

@@ -11,7 +11,7 @@ content = @`
             <h2 class="text-red-500">${errorMessage}</h2>
         @else
         <h1 class="text-2xl font-bold text-center mb-6">${booker != null ? "Update" : "Add"} Booker</h1>
-        <form action="${"/admin/bookers" + (booker != null ? "/" + booker.email() : "")}" method="POST">
+        <form action="${"/admin/bookers" + (booker != null ? "/" + booker.signature() : "")}" method="POST">
             @if(booker != null)
                 <div>
                     <label for="email" class="block text-gray-700 font-medium mb-2">Booker email</label>

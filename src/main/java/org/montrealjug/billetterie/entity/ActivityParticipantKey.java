@@ -3,6 +3,7 @@ package org.montrealjug.billetterie.entity;
 
 import jakarta.persistence.Embeddable;
 import java.util.Objects;
+import org.hibernate.proxy.HibernateProxy;
 
 @Embeddable
 public class ActivityParticipantKey {
@@ -27,15 +28,25 @@ public class ActivityParticipantKey {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof ActivityParticipantKey that)) {
-            return false;
-        }
-        return activityId == that.activityId && participantId == that.participantId;
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy
+            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+            : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        ActivityParticipantKey that = (ActivityParticipantKey) o;
+        return (
+            Objects.equals(getActivityId(), that.getActivityId()) &&
+            Objects.equals(getParticipantId(), that.getParticipantId())
+        );
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Objects.hash(activityId, participantId);
     }
 }

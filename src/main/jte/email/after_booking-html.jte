@@ -47,13 +47,13 @@
         Lors de cet événement,
       </td>
     </tr>
-    @for (ActivityParticipant registration: context.participants())
+    @for (ActivityParticipant booking: context.participants())
       <tr>
         <td class="participant">
           <table class="participant">
             <tr>
               <td>
-                ${registration.getParticipant().getFirstName()} ${registration.getParticipant().getLastName()}
+                ${booking.getParticipant().getFirstName()} ${booking.getParticipant().getLastName()}
               </td>
             </tr>
             <tr>
@@ -61,12 +61,12 @@
             </tr>
             <tr>
               <td>
-                <strong>${registration.getActivity().getTitle()}</strong>
+                <strong>${booking.getActivity().getTitle()}</strong>
               </td>
             </tr>
             <tr>
               <td>
-                démarrant à <time datetime="${context.formatForDateTimeAttribute(registration.getActivity().getStartTime())}">${context.formatTime(registration.getActivity().getStartTime())}</time>
+                démarrant à <time datetime="${context.formatForDateTimeAttribute(booking.getActivity().getStartTime())}">${context.formatTime(booking.getActivity().getStartTime())}</time>
               </td>
             </tr>
           </table>
@@ -124,13 +124,13 @@
         During this event,
       </td>
     </tr>
-    @for (ActivityParticipant registration: context.participants())
+    @for (ActivityParticipant booking: context.participants())
       <tr>
         <td class="participant">
           <table class="participant">
             <tr>
               <td>
-                ${registration.getParticipant().getFirstName()} ${registration.getParticipant().getLastName()}
+                ${booking.getParticipant().getFirstName()} ${booking.getParticipant().getLastName()}
               </td>
             </tr>
             <tr>
@@ -138,12 +138,12 @@
             </tr>
             <tr>
               <td>
-                <strong>${registration.getActivity().getTitle()}</strong>
+                <strong>${booking.getActivity().getTitle()}</strong>
               </td>
             </tr>
             <tr>
               <td>
-                starting at <time datetime="${context.formatForDateTimeAttribute(registration.getActivity().getStartTime())}">${context.formatTime(registration.getActivity().getStartTime())}</time>
+                starting at <time datetime="${context.formatForDateTimeAttribute(booking.getActivity().getStartTime())}">${context.formatTime(booking.getActivity().getStartTime())}</time>
               </td>
             </tr>
           </table>

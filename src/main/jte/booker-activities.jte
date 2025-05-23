@@ -1,5 +1,4 @@
 @import org.montrealjug.billetterie.entity.Activity
-@import org.montrealjug.billetterie.entity.ActivityParticipant
 @import org.montrealjug.billetterie.ui.PresentationEvent
 @import org.montrealjug.billetterie.ui.PresentationActivity
 @import org.montrealjug.billetterie.ui.Utils
@@ -19,7 +18,7 @@ content = @`
             ${error}
         </div>
     @endif
-    <div><b>DON'T FORGET TO SUBMIT CHANGES</b> - Ticket for ${booker.getFirstName()} ${booker.getLastName()} (${booker.getEmail()}) - <b>OUBLIE PAS DE CLIQUER SUR SUBMIT CHANGES</b></div>
+        <div>Ticket for ${booker.getFirstName()} ${booker.getLastName()} (${booker.getEmail()})</div>
 
     @if(event != null)
         <div class="w-full max-w-full h-full md:rounded md:h-auto md:max-h-full md:p-4 lg:p-8 lg:max-w-6xl flex flex-col justify-end-safe md:bg-white md:shadow-md">
@@ -47,10 +46,10 @@ content = @`
                         <h3 class="text-md font-semibold text-gray-700 mb-2">Activities</h3>
                         <div class="bg-white rounded md:rounded-md md:shadow">
                             @for(PresentationActivity activity: event.activities())
-                                !{var waitingParticipantsNumber = activity.totalWaitingQueue(); }
-                                !{var regularParticipantsNumber = activity.totalParticipants() - waitingParticipantsNumber; }
+                                !{var regularParticipantsNumber = activity.participants().size(); }
+                                !{var waitingParticipantsNumber = activity.waitingParticipants().size(); }
 
-                                <article class="my-4 flex flex-col md:flex-row md:my-8 p-4">
+                                <article class="my-4 flex flex-col md:flex-row items-start justify-between md:my-8 p-4 border-b border-gray-200">
                                     <div class="size-12 shrink-0 mr-2 md:size-16 md:mr-4">
                                         @template.layouts.image_with_fallback(
                                             entityType = "activity",
@@ -98,13 +97,12 @@ content = @`
                                         @if(regularParticipantsNumber != 0)
                                             <div class="mb-2" id="regular-participants-container">
                                                 <span class="font-medium">Regular participants:</span>
-                                                @for(ActivityParticipant activityParticipant : activity.participants())
-                                                    !{var participant = activityParticipant.getParticipant(); }
+                                                @for(var activityParticipant : activity.participants())
                                                     <li class="flex justify-between items-center mb-1">
-                                                        <span>${participant.getFirstName()} ${participant.getLastName()}, born in ${participant.getYearOfBirth()}</span>
-                                                        @if (booker.getParticipants().contains(participant))
+                                                        <span>${activityParticipant.firstName()} ${activityParticipant.lastName()}, age ${activityParticipant.age()}</span>
+                                                        @if (booker.getParticipants().stream().anyMatch(p -> p.getId() == activityParticipant.id()))
                                                             <div class="flex space-x-2">
-                                                                <button onclick='displayRemovalModal(${activity.id()}, "${participant.getFirstName()}", "${participant.getLastName()}", ${participant.getYearOfBirth()})'
+                                                                <button onclick='displayRemovalModal(${activity.id()}, "${activityParticipant.firstName()}", "${activityParticipant.lastName()}", ${activityParticipant.age()})'
                                                                         data-activity-id="${activity.id()}"
                                                                         class="bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300">
                                                                     Remove
@@ -120,19 +118,18 @@ content = @`
                                             @if(waitingParticipantsNumber != 0)
                                                 <div id="waiting-participants-container">
                                                     <span class="font-medium text-orange-600">Waiting list:</span>
-                                                    @for(ActivityParticipant activityParticipant : activity.waitingParticipants())
-                                                        !{var participant = activityParticipant.getParticipant(); }
+                                                    @for(var activityParticipant : activity.waitingParticipants())
                                                         <li class="text-orange-600 flex justify-between items-center mb-1">
-                                                                <span>${participant.getFirstName()} ${participant.getLastName()}, born in ${participant.getYearOfBirth()} (waiting)</span>
-                                                                 @if (booker.getParticipants().contains(participant))
-                                                                    <div class="flex space-x-2">
-                                                                        <button onclick='displayRemovalModal(${activity.id()}, "${participant.getFirstName()}", "${participant.getLastName()}", ${participant.getYearOfBirth()})'
-                                                                                data-activity-id="${activity.id()}"
-                                                                                class="bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300">
-                                                                            Remove
-                                                                        </button>
-                                                                    </div>
-                                                                @endif
+                                                            <span>${activityParticipant.firstName()} ${activityParticipant.lastName()}, age ${activityParticipant.age()}</span>
+                                                            @if (booker.getParticipants().stream().anyMatch(p -> p.getId() == activityParticipant.id()))
+                                                                <div class="flex space-x-2">
+                                                                    <button onclick='displayRemovalModal(${activity.id()}, "${activityParticipant.firstName()}", "${activityParticipant.lastName()}", ${activityParticipant.age()})'
+                                                                            data-activity-id="${activity.id()}"
+                                                                            class="bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300">
+                                                                        Remove
+                                                                    </button>
+                                                                </div>
+                                                            @endif
                                                         </li>
                                                     @endfor
                                                 </div>
@@ -552,7 +549,7 @@ content = @`
                     alert(errorData.message || "Failed to register participants.");
                 }
             } catch (error) {
-                console.error("Error during registration:", error);
+                console.error("Error during booking:", error);
                 alert("An error occurred while registering participants. Please try again.");
             }
         }

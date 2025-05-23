@@ -39,7 +39,7 @@ public class BookersController {
 
         List<PresentationBooker> presentationBookers = StreamSupport
             .stream(bookers.spliterator(), false)
-            .map(booker -> new PresentationBooker(booker.getFirstName(), booker.getLastName(), booker.getEmail()))
+            .map(Utils::toPresentationBooker)
             .toList();
 
         model.addAttribute("bookerList", presentationBookers);
@@ -73,37 +73,31 @@ public class BookersController {
         return "bookers-create-update";
     }
 
-    @GetMapping("{email}")
-    public String showUpdateBookerPage(Model model, @PathVariable String email) {
-        Optional<Booker> optionalBooker = this.bookerRepository.findById(email);
-
-        if (optionalBooker.isEmpty()) {
-            throw new EntityNotFoundException("Booker with email " + email + " not found", "bookers-create-update");
-        }
-
-        Booker booker = optionalBooker.get();
-        PresentationBooker presentationBooker = new PresentationBooker(
-            booker.getFirstName(),
-            booker.getLastName(),
-            booker.getEmail()
-        );
-        model.addAttribute("booker", presentationBooker);
-
+    @GetMapping("{emailSignature}")
+    public String showUpdateBookerPage(Model model, @PathVariable String emailSignature) {
+        this.bookerRepository.findByEmailSignature(emailSignature)
+            .map(Utils::toPresentationBooker)
+            .ifPresentOrElse(
+                booker -> model.addAttribute("booker", booker),
+                () -> {
+                    throw new EntityNotFoundException("Booker with emailSignature " + emailSignature + " not found");
+                }
+            );
         return "bookers-create-update";
     }
 
-    @PostMapping("{email}")
+    @PostMapping("{emailSignature}")
     public ResponseEntity<Void> updateBooker(
         Model model,
-        @PathVariable String email,
+        @PathVariable String emailSignature,
         @Valid PresentationBooker presentationBooker
     ) {
-        Optional<Booker> optionalBooker = bookerRepository.findById(email);
+        Optional<Booker> optionalBooker = bookerRepository.findByEmailSignature(emailSignature);
 
         if (optionalBooker.isEmpty()) {
             throw new RedirectableNotFoundException(
-                "Booker with email " + email + " not found",
-                "/admin/bookers/" + email
+                "Booker with emailSignature " + emailSignature + " not found",
+                "/admin/bookers/" + emailSignature
             );
         }
 

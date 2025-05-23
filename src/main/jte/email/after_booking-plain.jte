@@ -7,10 +7,10 @@ Devoxx4Kids Québec, confirmation d'inscription à une activité (English versio
 Bonjour ${context.booker().getFirstName()} ${context.booker().getLastName()},
 Nous vous confirmons votre inscription pour l'événement Devoxx4kids ${context.event().getTitle()} le ${context.formatDateFr(context.event().getDate())}.
 Lors de cet événement,
-@for (ActivityParticipant registration : context.participants())
-  ${registration.getParticipant().getFirstName()} ${registration.getParticipant().getLastName()}
+@for (ActivityParticipant booking : context.participants())
+  ${booking.getParticipant().getFirstName()} ${booking.getParticipant().getLastName()}
   participera à l'activité:
-  ${registration.getActivity().getTitle()} démarrant à ${context.formatTime(registration.getActivity().getStartTime())}
+  ${booking.getActivity().getTitle()} démarrant à ${context.formatTime(booking.getActivity().getStartTime())}
 @endfor
 Vous pouvez modifier votre inscription en utilisant le lien suivant: ${context.registrationLink()}
 
@@ -23,10 +23,10 @@ Devoxx4Kids Québec, activity booking confirmation:
 Hi ${context.booker().getFirstName()} ${context.booker().getLastName()},
 We confirm your activity booking for the Devoxx4Kids event ${context.event().getTitle()} on ${context.formatDateEn(context.event().getDate())}.
 During this event,
-@for (ActivityParticipant registration : context.participants())
-  ${registration.getParticipant().getFirstName()} ${registration.getParticipant().getLastName()}
+@for (ActivityParticipant booking : context.participants())
+  ${booking.getParticipant().getFirstName()} ${booking.getParticipant().getLastName()}
   will attend the activity:
-  ${registration.getActivity().getTitle()} starting at ${context.formatTime(registration.getActivity().getStartTime())}
+  ${booking.getActivity().getTitle()} starting at ${context.formatTime(booking.getActivity().getStartTime())}
 @endfor
 You can manage your booking using the following link: ${context.registrationLink()}
 

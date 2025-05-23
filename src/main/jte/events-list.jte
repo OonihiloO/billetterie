@@ -1,4 +1,3 @@
-@import org.montrealjug.billetterie.entity.ActivityParticipant
 @import org.montrealjug.billetterie.ui.PresentationEvent
 @import org.montrealjug.billetterie.ui.PresentationActivity
 @import java.time.format.DateTimeFormatter
@@ -94,12 +93,11 @@
                                     @if(regularParticipantsNumber > 0)
                                         <div class="mb-2">
                                             <span class="font-medium">Regular participants:</span>
-                                            @for(ActivityParticipant activityParticipant : activity.participants())
-                                                !{var participant = activityParticipant.getParticipant(); }
+                                            @for (var participant : activity.participants())
                                                 <li class="flex justify-between items-center mb-1">
-                                                    <span>${participant.getFirstName()} ${participant.getLastName()}, aged ${participant.getAge()} - Booker: <a href="http://localhost:8080/admin/bookers/${participant.getBooker().getEmail()}">${participant.getBooker().getFirstName()} ${participant.getBooker().getLastName()} (${participant.getBooker().getEmail()})</a></span>
+                                                    <span>${participant.firstName()} ${participant.lastName()}, aged ${participant.age()} - Booker: <a href="http://localhost:8080/admin/bookers/${participant.booker().getEmailSignature()}">${participant.booker().getFirstName()} ${participant.booker().getLastName()} (${participant.booker().getEmail()})</a></span>
                                                     <div class="flex space-x-2">
-                                                        <button onclick="deleteParticipant(${participant.getId()})"
+                                                        <button onclick="deleteParticipant(${participant.id()})"
                                                                 data-activity-id="${activity.id()}"
                                                                 class="bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300">
                                                             Delete
@@ -114,12 +112,11 @@
                                     @if(waitingParticipantsNumber > 0)
                                         <div>
                                             <span class="font-medium text-orange-600">Waiting list:</span>
-                                            @for(ActivityParticipant activityParticipant : activity.waitingParticipants())
-                                                !{var participant = activityParticipant.getParticipant(); }
-                                                <li class="flex justify-between items-center mb-1 text-orange-600">
-                                                    <span>${participant.getFirstName()} ${participant.getLastName()}, aged ${participant.getAge()} - Booker: <a href="http://localhost:8080/admin/bookers/${participant.getBooker().getEmail()}" class="text-orange-800">${participant.getBooker().getFirstName()} ${participant.getBooker().getLastName()} (${participant.getBooker().getEmail()})</a> (waiting)</span>
+                                            @for (var participant : activity.waitingParticipants())
+                                                <li class="flex justify-between items-center mb-1">
+                                                    <span>${participant.firstName()} ${participant.lastName()}, aged ${participant.age()} - Booker: <a href="http://localhost:8080/admin/bookers/${participant.booker().getEmailSignature()}">${participant.booker().getFirstName()} ${participant.booker().getLastName()} (${participant.booker().getEmail()})</a></span>
                                                     <div class="flex space-x-2">
-                                                        <button onclick="deleteParticipant(${participant.getId()})"
+                                                        <button onclick="deleteParticipant(${participant.id()})"
                                                                 data-activity-id="${activity.id()}"
                                                                 class="bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300">
                                                             Delete
@@ -173,7 +170,7 @@
                         alert("Event deleted successfully!");
                         // Optionally, remove the event from the DOM
                         @raw
-                        document.querySelector(`button[onclick="deleteEvent(${eventId})"]`).closest("div").parentElement.parentElement.remove();
+                        document.querySelector(`button[onclick="deleteEvent('${eventId}')"]`).closest("div").parentElement.parentElement.remove();
                         @endraw
                     } else {
                         // Handle server error
@@ -209,7 +206,7 @@
                         alert("Activity deleted successfully!");
                         // Optionally, remove the activity from the DOM
                         @raw
-                        document.querySelector(`button[onclick="deleteActivity(${eventId}, ${activityId})"]`).closest("tr").remove();
+                        document.querySelector(`button[onclick="deleteActivity('${eventId}', ${activityId})"]`).closest("tr").remove();
                         @endraw
                     } else {
                         // Handle server error

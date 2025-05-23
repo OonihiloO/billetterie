@@ -4,9 +4,7 @@ package org.montrealjug.billetterie.email;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.montrealjug.billetterie.email.EmailConfiguration.EmailProperties;
 import org.montrealjug.billetterie.email.EmailModel.EmailToSend;
@@ -32,11 +30,8 @@ class SmtpEmailSender implements EmailSender {
         helper.setFrom(this.from);
         helper.setReplyTo(this.replyTo);
         helper.setSubject(email.subject());
-        if (email.attachmentInputStream().isPresent()) {
-            InputStream inputStream = email.attachmentInputStream().get();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            inputStream.transferTo(baos);
-            helper.addAttachment("qrCode.jpg", () -> new ByteArrayInputStream(baos.toByteArray()));
+        if (email.attachment().isPresent()) {
+            helper.addAttachment("qrCode.jpg", () -> new ByteArrayInputStream(email.attachment().get()));
         }
         helper.setText(email.plainText(), email.html());
         this.javaMailSender.send(msg);

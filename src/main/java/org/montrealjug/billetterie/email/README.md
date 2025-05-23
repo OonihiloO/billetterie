@@ -86,7 +86,7 @@ The `local` profile deactivate email emission by setting the property `app.mail.
 Running the app with the `local` profile will send emails to the `console` via logs.
 
 Another profile has been added for both `spring` and `docker compose` configuration: `mailhog`.  
-Because this `mailhog` profile should be used on top of the `local` profile and [some limitations on dynamic profile registration](https://docs.spring.io/spring-boot/reference/features/profiles.html) in `SpringBoot`,
+Because this `mailhog` profile should be used on top of the `local` profile and [some limitations on dynamic profile booking](https://docs.spring.io/spring-boot/reference/features/profiles.html) in `SpringBoot`,
 a [`group`](https://docs.spring.io/spring-boot/reference/features/profiles.html#features.profiles.groups) `local-mail` is available to set everything up in one shot:
 ```shell
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=local-mail

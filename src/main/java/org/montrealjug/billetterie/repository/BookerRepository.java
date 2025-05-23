@@ -6,5 +6,6 @@ import org.montrealjug.billetterie.entity.Booker;
 import org.springframework.data.repository.CrudRepository;
 
 public interface BookerRepository extends CrudRepository<Booker, String> {
+    // TODO: add caching (caffeine or ehCache)?
     Optional<Booker> findByEmailSignature(String emailSignature);
 }

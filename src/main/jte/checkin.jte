@@ -1,4 +1,3 @@
-@import org.montrealjug.billetterie.entity.ActivityParticipant
 @import org.montrealjug.billetterie.ui.PresentationEvent
 @import org.montrealjug.billetterie.ui.PresentationActivity
 @import org.montrealjug.billetterie.ui.Utils
@@ -79,18 +78,17 @@ content = @`
                                         @if(regularParticipantsNumber != 0)
                                             <div class="mb-2">
                                                 <span class="font-medium">Regular participants:</span>
-                                                @for(ActivityParticipant activityParticipant : activity.participants())
-                                                    !{var participant = activityParticipant.getParticipant(); }
+                                                @for (var participant : activity.participants())
                                                     <li class="flex items-center">
                                                         <input type="checkbox"
-                                                               id="checkin-${activity.id()}-${participant.getId()}"
+                                                               id="checkin-${activity.id()}-${participant.id()}"
                                                                class="mr-2 checkin-checkbox"
                                                                data-activity-id="${activity.id()}"
-                                                               data-participant-id="${participant.getId()}"
-                                                               checked="${activityParticipant.getCheckInTime() != null}"
+                                                               data-participant-id="${participant.id()}"
+                                                               checked="${participant.checkInTime() != null}"
                                                         >
-                                                        <label for="checkin-${activity.id()}-${participant.getId()}">
-                                                            ${participant.getFirstName()} ${participant.getLastName()}, born in ${participant.getYearOfBirth()}
+                                                        <label for="checkin-${activity.id()}-${participant.id()}">
+                                                            ${participant.firstName()} ${participant.lastName()}, age ${participant.age()}
                                                         </label>
                                                     </li>
                                                 @endfor
@@ -101,18 +99,17 @@ content = @`
                                         @if(waitingParticipantsNumber != 0)
                                             <div>
                                                 <span class="font-medium text-orange-600">Waiting list:</span>
-                                                @for(ActivityParticipant activityParticipant : activity.waitingParticipants())
-                                                    !{var participant = activityParticipant.getParticipant(); }
+                                                @for (var participant : activity.waitingParticipants())
                                                     <li class="flex items-center text-orange-600">
                                                         <input type="checkbox"
-                                                               id="checkin-${activity.id()}-${participant.getId()}"
+                                                               id="checkin-${activity.id()}-${participant.id()}"
                                                                class="mr-2 checkin-checkbox"
                                                                data-activity-id="${activity.id()}"
-                                                               data-participant-id="${participant.getId()}"
-                                                               checked="${activityParticipant.getCheckInTime() != null}"
+                                                               data-participant-id="${participant.id()}"
+                                                               checked="${participant.checkInTime() != null}"
                                                                >
-                                                        <label for="checkin-${activity.id()}-${participant.getId()}">
-                                                            ${participant.getFirstName()} ${participant.getLastName()}, born in ${participant.getYearOfBirth()} (waiting)
+                                                        <label for="checkin-${activity.id()}-${participant.id()}">
+                                                            ${participant.firstName()} ${participant.lastName()}, age ${participant.age()} (waiting)
                                                         </label>
                                                     </li>
                                                 @endfor

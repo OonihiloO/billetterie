@@ -9,6 +9,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import java.time.Instant;
 import java.util.Objects;
+import org.hibernate.proxy.HibernateProxy;
 
 @Entity
 public class ActivityParticipant implements Comparable<ActivityParticipant> {
@@ -79,20 +80,33 @@ public class ActivityParticipant implements Comparable<ActivityParticipant> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof ActivityParticipant that)) {
-            return false;
-        }
-        return Objects.equals(activityParticipantKey, that.activityParticipantKey);
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy
+            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+            : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        ActivityParticipant that = (ActivityParticipant) o;
+        return (
+            getActivityParticipantKey() != null &&
+            Objects.equals(getActivityParticipantKey(), that.getActivityParticipantKey())
+        );
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hashCode(activityParticipantKey);
+    public final int hashCode() {
+        return Objects.hash(activityParticipantKey);
     }
 
     @Override
     public int compareTo(ActivityParticipant o) {
+        if (this.equals(o)) {
+            return 0;
+        }
         var activityComp = Long.compare(
             this.activityParticipantKey.getActivityId(),
             o.activityParticipantKey.getActivityId()

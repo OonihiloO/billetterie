@@ -3,7 +3,6 @@ package org.montrealjug.billetterie.ui;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -14,7 +13,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.xml.element.NodeChildren;
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mockito;
 import org.montrealjug.billetterie.email.EmailModel.Email;
 import org.montrealjug.billetterie.email.EmailModel.EmailType;
 import org.montrealjug.billetterie.email.EmailService;
@@ -87,31 +84,6 @@ class RegistrationControllerTest {
 
     @Captor
     ArgumentCaptor<Email> emailCaptor;
-
-    @Test
-    void retrieveBaseUrlTest() {
-        // Create a mock HttpServletRequest
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-
-        // Set up the mock to return specific values
-        var requestURL = new StringBuffer("http://localhost:8080/some/path");
-        when(request.getRequestURL()).thenReturn(requestURL);
-        when(request.getRequestURI()).thenReturn("/some/path");
-        when(request.getContextPath()).thenReturn("");
-
-        // Call the method and verify the result
-        String baseUrl = RegistrationController.retrieveBaseUrl(request);
-        assertEquals("http://localhost:8080", baseUrl);
-
-        // Test with a different URL and context path
-        requestURL = new StringBuffer("https://example.com/some/path");
-        when(request.getRequestURL()).thenReturn(requestURL);
-        when(request.getRequestURI()).thenReturn("/some/path");
-        when(request.getContextPath()).thenReturn("/app");
-
-        baseUrl = RegistrationController.retrieveBaseUrl(request);
-        assertEquals("https://example.com/app", baseUrl);
-    }
 
     @Test
     public void isSameParticipantTest() {
@@ -222,7 +194,7 @@ class RegistrationControllerTest {
         throws Exception {
         var email = "registration-booker@test.org";
         when(signatureService.signAndTrim(email)).thenReturn(SIGNATURE);
-        var booker = new PresentationBooker("New", "Booker", email);
+        var booker = new PresentationBooker("New", "Booker", email, null);
         CREATED_BOOKER_IDS.add(email);
 
         given()
@@ -250,7 +222,7 @@ class RegistrationControllerTest {
     void registerBooker_should_return_a_409_without_sending_email_if_email_is_known() {
         var email = "already-registered@test.org";
         createBooker(email, false);
-        var booker = new PresentationBooker("Other First Name", "Other Last Name", email);
+        var booker = new PresentationBooker("Other First Name", "Other Last Name", email, null);
 
         given()
             .contentType(ContentType.JSON)

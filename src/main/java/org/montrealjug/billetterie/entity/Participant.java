@@ -4,6 +4,7 @@ package org.montrealjug.billetterie.entity;
 import jakarta.persistence.*;
 import java.time.Year;
 import java.util.Objects;
+import org.hibernate.proxy.HibernateProxy;
 
 @Entity
 public class Participant {
@@ -66,15 +67,24 @@ public class Participant {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Participant that)) {
-            return false;
-        }
-        return id == that.id;
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy
+            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+            : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Participant that = (Participant) o;
+        return Objects.equals(getId(), that.getId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
+    public final int hashCode() {
+        return this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+            : getClass().hashCode();
     }
 }

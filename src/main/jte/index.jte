@@ -74,11 +74,11 @@ content = @`
                 Register
             </button>
         </div>
-        <div id="success-registration-message" class="md:mt-4 p-4 bg-green-100 text-green-700 rounded-md hidden">
+        <div id="success-booking-message" class="md:mt-4 p-4 bg-green-100 text-green-700 rounded-md hidden">
             You have successfully registered your email address, please check your inbox and click on the verification link to register your kids to the activities
         </div>
         <div id="success-returning-message" class="md:mt-4 p-4 bg-green-100 text-green-700 rounded-md hidden">
-            We've sent you an email to finish the registration, please check your inbox and click on the registration link to register your kids to the activities
+            We've sent you an email to finish the booking, please check your inbox and click on the booking link to register your kids to the activities
         </div>
     </div>
     @else
@@ -91,16 +91,16 @@ content = @`
     function displayRegistrationModal() {
         // Create the modal elements
         const modal = document.createElement("div");
-        modal.id = "registration-modal";
+        modal.id = "booking-modal";
         modal.className = "fixed inset-0 flex items-center justify-center bg-black/50 z-50";
         @raw
         modal.innerHTML = `
         <div class="bg-white rounded-lg shadow-md p-6 w-96">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Register</h2>
-            <p id="first-registration-message" class="text-gray-800 text-sm mb-4 hidden">
+            <p id="first-booking-message" class="text-gray-800 text-sm mb-4 hidden">
               You're registering for the first time, please let us know a little more about yourself
             </p>
-            <form id="registration-form" class="space-y-4">
+            <form id="booking-form" class="space-y-4">
                 <fieldset>
                     <div>
                         <label for="email" class="block text-gray-700">Email</label>
@@ -118,12 +118,12 @@ content = @`
         @endraw
         // add the modal in DOM
         document.body.appendChild(modal);
-        const form = modal.querySelector("#registration-form");
+        const form = modal.querySelector("#booking-form");
         form.addEventListener("submit", onRegistrationFormSubmit);
     }
 
     function closeModal() {
-        const modal = document.getElementById("registration-modal");
+        const modal = document.getElementById("booking-modal");
         if (modal) {
             modal.remove();
         }
@@ -152,7 +152,7 @@ content = @`
         `;
         @endraw
         form.email.value = email;
-        form.parentElement.querySelector("#first-registration-message").classList.remove("hidden");
+        form.parentElement.querySelector("#first-booking-message").classList.remove("hidden");
     }
     async function onRegistrationFormSubmit(event) {
         event.preventDefault();
@@ -196,7 +196,7 @@ content = @`
                     break;
             }
         } catch (error) {
-            console.error("Error during registration:", error);
+            console.error("Error during booking:", error);
             errorMessage.textContent = "An error occurred. Please try again.";
             errorMessage.classList.remove("hidden");
         }
@@ -229,14 +229,14 @@ content = @`
                 body: JSON.stringify({ firstName, lastName, email }),
             });
             if (response.ok) {
-                onRegistrationCompleted("registration");
+                onRegistrationCompleted("booking");
             } else {
                 const errorData = await response.json();
                 errorMessage.textContent = errorData.message || "Registration failed.";
                 errorMessage.classList.remove("hidden");
             }
         } catch (error) {
-            console.error("Error during registration:", error);
+            console.error("Error during booking:", error);
             errorMessage.textContent = "An error occurred. Please try again.";
             errorMessage.classList.remove("hidden");
         }

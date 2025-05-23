@@ -2,7 +2,6 @@
 package org.montrealjug.billetterie.email;
 
 import jakarta.mail.internet.InternetAddress;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
@@ -12,7 +11,8 @@ import java.util.*;
 import org.montrealjug.billetterie.entity.ActivityParticipant;
 import org.montrealjug.billetterie.entity.Booker;
 import org.montrealjug.billetterie.entity.Event;
-import org.montrealjug.billetterie.ui.PresentationActivityParticipant;
+import org.montrealjug.billetterie.ui.PresentationEvent;
+import org.montrealjug.billetterie.ui.PresentationParticipant;
 
 public class EmailModel {
 
@@ -41,7 +41,7 @@ public class EmailModel {
         AFTER_BOOKING,
         AFTER_REGISTRATION,
         AFTER_PARTICIPANTS_CHANGES,
-        PARTICIPANT_UPGRADED,
+        AFTER_WAITING_LIST_UPGRADE,
         RETURNING_BOOKER;
 
         public String subjectKey() {
@@ -60,7 +60,10 @@ public class EmailModel {
     public interface Email {
         EmailType type();
         InternetAddress to();
-        Optional<InputStream> attachmentInputStream();
+
+        default Optional<byte[]> qrCode() {
+            return Optional.empty();
+        }
 
         default String formatDateFr(Temporal temporal) {
             return FR_DATE_FORMAT.format(temporal);
@@ -94,26 +97,24 @@ public class EmailModel {
 
         static Email afterParticipantsChanges(
             Booker booker,
-            List<PresentationActivityParticipant> participants,
-            Event event,
+            PresentationEvent event,
             String baseUrl,
-            InputStream qrCodeInputStream
+            byte[] qrCodeContent
         ) {
-            return new AfterParticipantsChangesEmail(booker, participants, event, baseUrl, qrCodeInputStream);
-        }
-
-        static Email participantUpgraded(
-            Booker booker,
-            PresentationActivityParticipant participantActivity,
-            Event event,
-            String baseUrl,
-            InputStream qrCodeInputStream
-        ) {
-            return new ParticipantUpgraded(booker, participantActivity, event, baseUrl, qrCodeInputStream);
+            return new AfterParticipantsChangesEmail(booker, event, baseUrl, qrCodeContent);
         }
 
         static Email returningBooker(Booker booker, String baseUrl) {
             return new ReturningBookingEmail(booker, baseUrl);
+        }
+
+        static Email afterParticipantsUpgrade(
+            Booker booker,
+            PresentationEvent presentationEvent,
+            String baseUrl,
+            byte[] qrCodeContent
+        ) {
+            return new AfterParticipantsChangesEmail(booker, presentationEvent, baseUrl, qrCodeContent);
         }
 
         private static InternetAddress fromBooker(Booker booker) {
@@ -148,11 +149,6 @@ public class EmailModel {
             return Email.fromBooker(booker);
         }
 
-        @Override
-        public Optional<InputStream> attachmentInputStream() {
-            return Optional.empty();
-        }
-
         public String registrationLink() {
             return "https://placeholder_for_registration_link.test";
         }
@@ -169,22 +165,16 @@ public class EmailModel {
             return Email.fromBooker(booker);
         }
 
-        @Override
-        public Optional<InputStream> attachmentInputStream() {
-            return Optional.empty();
-        }
-
         public String registrationLink() {
-            return baseUrl + "/bookings/" + booker.getEmailSignature();
+            return baseUrl + "/bookers/" + booker.getEmailSignature();
         }
     }
 
     public record AfterParticipantsChangesEmail(
         Booker booker,
-        List<PresentationActivityParticipant> participants,
-        Event event,
+        PresentationEvent event,
         String baseUrl,
-        InputStream qrCodeInputStream
+        byte[] qrCodeContent
     )
         implements Email {
         @Override
@@ -198,40 +188,16 @@ public class EmailModel {
         }
 
         @Override
-        public Optional<InputStream> attachmentInputStream() {
-            return Optional.of(qrCodeInputStream);
+        public Optional<byte[]> qrCode() {
+            return Optional.of(qrCodeContent);
         }
 
         public String registrationLink() {
-            return baseUrl + "/bookings/" + booker.getEmailSignature();
-        }
-    }
-
-    public record ParticipantUpgraded(
-        Booker booker,
-        PresentationActivityParticipant participant,
-        Event event,
-        String baseUrl,
-        InputStream qrCodeInputStream
-    )
-        implements Email {
-        @Override
-        public EmailType type() {
-            return EmailType.PARTICIPANT_UPGRADED;
+            return baseUrl + "/bookers/" + booker.getEmailSignature();
         }
 
-        @Override
-        public InternetAddress to() {
-            return Email.fromBooker(booker);
-        }
-
-        @Override
-        public Optional<InputStream> attachmentInputStream() {
-            return Optional.of(qrCodeInputStream);
-        }
-
-        public String registrationLink() {
-            return baseUrl + "/bookings/" + booker.getEmailSignature();
+        public List<PresentationParticipant> participants() {
+            return this.event.participantsForBooker(this.booker);
         }
     }
 
@@ -246,13 +212,26 @@ public class EmailModel {
             return Email.fromBooker(booker);
         }
 
+        public String registrationLink() {
+            return baseUrl + "/bookers/" + booker.getEmailSignature();
+        }
+    }
+
+    public record AfterWaitingListUpgrade(Booker booker, PresentationEvent event, String baseUrl, byte[] qrCodeContent)
+        implements Email {
         @Override
-        public Optional<InputStream> attachmentInputStream() {
-            return Optional.empty();
+        public EmailType type() {
+            return EmailType.AFTER_WAITING_LIST_UPGRADE;
         }
 
-        public String registrationLink() {
-            return baseUrl + "/bookings/" + booker.getEmailSignature();
+        @Override
+        public InternetAddress to() {
+            return Email.fromBooker(booker);
+        }
+
+        @Override
+        public Optional<byte[]> qrCode() {
+            return Optional.of(qrCodeContent);
         }
     }
 
@@ -261,6 +240,6 @@ public class EmailModel {
         String subject,
         String plainText,
         String html,
-        Optional<InputStream> attachmentInputStream
+        Optional<byte[]> attachment
     ) {}
 }
